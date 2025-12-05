@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Degradation Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .battery-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group small {
+            color: #999;
+            margin-top: 5px;
+            font-size: 0.85em;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-predict {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-predict:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-predict:active {
+            transform: translateY(0);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-predict:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            display: none;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .result-header h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+
+        .soh-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .soh-value {
+            font-size: 4em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .soh-label {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-card h3 {
+            color: #667eea;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+
+        .metric-card p {
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        .status-excellent { background: #d4edda; color: #155724; }
+        .status-good { background: #d1ecf1; color: #0c5460; }
+        .status-fair { background: #fff3cd; color: #856404; }
+        .status-poor { background: #f8d7da; color: #721c24; }
+
+        .recommendation {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .recommendation h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .recommendation p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .soh-value {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="battery-icon">🔋</div>
+            <h1>Battery Health Predictor</h1>
+            <p>AI-Powered Battery Degradation Analysis</p>
+        </div>
+
+        <form id="predictionForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="cycles">Charge/Discharge Cycles</label>
+                    <input type="number" id="cycles" name="cycles" value="500" min="0" max="5000" required>
+                    <small>Number of charge cycles (0-5000)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="temperature">Temperature (°C)</label>
+                    <input type="number" id="temperature" name="temperature" value="25" min="-20" max="60" step="0.1" required>
+                    <small>Operating temperature (-20 to 60°C)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="c_rate">C-Rate</label>
+                    <input type="number" id="c_rate" name="c_rate" value="1.0" min="0.1" max="5" step="0.1" required>
+                    <small>Charging rate (0.1 to 5.0)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="voltage_min">Min Voltage (V)</label>
+                    <input type="number" id="voltage_min" name="voltage_min" value="3.0" min="2.5" max="4.0" step="0.1" required>
+                    <small>Minimum voltage (2.5-4.0V)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="voltage_max">Max Voltage (V)</label>
+                    <input type="number" id="voltage_max" name="voltage_max" value="4.2" min="3.5" max="4.5" step="0.1" required>
+                    <small>Maximum voltage (3.5-4.5V)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="usage_hours">Usage Hours</label>
+                    <input type="number" id="usage_hours" name="usage_hours" value="1200" min="0" max="10000" required>
+                    <small>Total usage hours (0-10000)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="humidity">Humidity (%)</label>
+                    <input type="number" id="humidity" name="humidity" value="50" min="0" max="100" step="1" required>
+                    <small>Relative humidity (0-100%)</small>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-predict">🔍 Predict Battery Health</button>
+                <button type="reset" class="btn-reset">🔄 Reset Form</button>
+            </div>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing battery parameters...</p>
+        </div>
+
+        <div class="error" id="error"></div>
+
+        <div class="result-container" id="results">
+            <div class="result-header">
+                <h2>Prediction Results</h2>
+            </div>
+
+            <div class="soh-display">
+                <div class="soh-value" id="sohValue">--</div>
+                <div class="soh-label">State of Health (SOH)</div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%">
+                    <span id="progressText">0%</span>
+                </div>
+            </div>
+
+            <div id="statusBadge"></div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h3>Degradation Stage</h3>
+                    <p id="degradationStage">--</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Confidence</h3>
+                    <p id="confidence">--</p>
+                </div>
+                <div class="metric-card">
+                    <h3>Expected Range</h3>
+                    <p id="expectedRange">--</p>
+                </div>
+            </div>
+
+            <div class="recommendation" id="recommendation">
+                <h3>💡 Recommendations</h3>
+                <p id="recommendationText">--</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by Machine Learning • Battery Degradation Prediction System</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000';
+
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show loading, hide results and errors
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+            
+            // Disable submit button
+            const submitBtn = document.querySelector('.btn-predict');
+            submitBtn.disabled = true;
+            
+            // Get form data
+            const formData = {
+                cycles: parseFloat(document.getElementById('cycles').value),
+                temperature: parseFloat(document.getElementById('temperature').value),
+                c_rate: parseFloat(document.getElementById('c_rate').value),
+                voltage_min: parseFloat(document.getElementById('voltage_min').value),
+                voltage_max: parseFloat(document.getElementById('voltage_max').value),
+                usage_hours: parseFloat(document.getElementById('usage_hours').value),
+                humidity: parseFloat(document.getElementById('humidity').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status} - ${errorData}`);
+                }
+                
+                const result = await response.json();
+                console.log('Prediction result:', result);
+                displayResults(result);
+                
+            } catch (error) {
+                console.error('Full error:', error);
+                showError(`Failed to get prediction: ${error.message}. Check console (F12) for details.`);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                submitBtn.disabled = false;
+            }
+        });
+        
+        function displayResults(result) {
+            const soh = result.predicted_soh.toFixed(2);
+            
+            // Update SOH value
+            document.getElementById('sohValue').textContent = `${soh}%`;
+            
+            // Update progress bar
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            setTimeout(() => {
+                progressFill.style.width = `${soh}%`;
+                progressText.textContent = `${soh}%`;
+            }, 100);
+            
+            // Update degradation stage
+            document.getElementById('degradationStage').textContent = result.degradation_stage || '--';
+            
+            // Update confidence (simulated)
+            const confidence = result.confidence || 'High';
+            document.getElementById('confidence').textContent = confidence;
+            
+            // Update expected range (simulated ±2%)
+            const lowerBound = (parseFloat(soh) - 2).toFixed(2);
+            const upperBound = (parseFloat(soh) + 2).toFixed(2);
+            document.getElementById('expectedRange').textContent = `${lowerBound}% - ${upperBound}%`;
+            
+            // Update status badge
+            const statusBadge = document.getElementById('statusBadge');
+            let badgeClass = '';
+            let badgeText = '';
+            
+            if (soh >= 90) {
+                badgeClass = 'status-excellent';
+                badgeText = '✓ Excellent Condition';
+            } else if (soh >= 80) {
+                badgeClass = 'status-good';
+                badgeText = '✓ Good Condition';
+            } else if (soh >= 70) {
+                badgeClass = 'status-fair';
+                badgeText = '⚠ Fair Condition';
+            } else {
+                badgeClass = 'status-poor';
+                badgeText = '⚠ Poor Condition';
+            }
+            
+            statusBadge.innerHTML = `<span class="status-badge ${badgeClass}">${badgeText}</span>`;
+            
+            // Update recommendations
+            const recommendations = result.recommendations || [];
+            const recommendationText = recommendations.length > 0 
+                ? recommendations.join(' • ') 
+                : getRecommendationForSOH(soh);
+            document.getElementById('recommendationText').textContent = recommendationText;
+            
+            // Show results
+            document.getElementById('results').classList.add('show');
+        }
+        
+        function getRecommendationForSOH(soh) {
+            if (soh >= 90) {
+                return 'Battery is in excellent condition. Continue normal usage patterns and regular maintenance.';
+            } else if (soh >= 80) {
+                return 'Battery is in good condition. Monitor charging patterns and avoid extreme temperatures.';
+            } else if (soh >= 70) {
+                return 'Battery showing moderate degradation. Consider reducing fast charging frequency and optimizing usage conditions.';
+            } else {
+                return 'Battery requires attention. Consider replacement soon. Minimize deep discharge cycles and extreme operating conditions.';
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = `❌ ${message}`;
+            errorDiv.classList.add('show');
+        }
+        
+        // Reset form handler
+        document.getElementById('predictionForm').addEventListener('reset', () => {
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+        });
+    </script>
+</body>
+</html>

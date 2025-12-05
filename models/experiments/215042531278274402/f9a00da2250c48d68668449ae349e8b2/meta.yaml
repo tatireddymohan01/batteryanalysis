@@ -1,0 +1,14 @@
+artifact_uri: file:D:/GitHubRepos/BatteriAnalysis/models/experiments/215042531278274402/f9a00da2250c48d68668449ae349e8b2/artifacts
+end_time: 1764915288337
+entry_point_name: ''
+experiment_id: '215042531278274402'
+lifecycle_stage: active
+run_id: f9a00da2250c48d68668449ae349e8b2
+run_name: ridge_regression
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764915288274
+status: 3
+tags: []
+user_id: mohan

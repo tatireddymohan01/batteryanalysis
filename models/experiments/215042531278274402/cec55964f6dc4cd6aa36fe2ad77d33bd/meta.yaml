@@ -1,0 +1,14 @@
+artifact_uri: file:D:/GitHubRepos/BatteriAnalysis/models/experiments/215042531278274402/cec55964f6dc4cd6aa36fe2ad77d33bd/artifacts
+end_time: 1764914607454
+entry_point_name: ''
+experiment_id: '215042531278274402'
+lifecycle_stage: active
+run_id: cec55964f6dc4cd6aa36fe2ad77d33bd
+run_name: linear_regression
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764914595520
+status: 3
+tags: []
+user_id: mohan

@@ -1,0 +1,14 @@
+artifact_uri: file:D:/GitHubRepos/BatteriAnalysis/models/experiments/215042531278274402/fa8f65f70e5844a98c172aa6f7079ea5/artifacts
+end_time: 1764915288444
+entry_point_name: ''
+experiment_id: '215042531278274402'
+lifecycle_stage: active
+run_id: fa8f65f70e5844a98c172aa6f7079ea5
+run_name: random_forest
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764915288370
+status: 3
+tags: []
+user_id: mohan

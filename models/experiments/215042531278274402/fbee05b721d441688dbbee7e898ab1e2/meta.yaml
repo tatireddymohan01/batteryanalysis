@@ -1,0 +1,14 @@
+artifact_uri: file:D:/GitHubRepos/BatteriAnalysis/models/experiments/215042531278274402/fbee05b721d441688dbbee7e898ab1e2/artifacts
+end_time: 1764914607751
+entry_point_name: ''
+experiment_id: '215042531278274402'
+lifecycle_stage: active
+run_id: fbee05b721d441688dbbee7e898ab1e2
+run_name: xgboost
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764914607678
+status: 3
+tags: []
+user_id: mohan
