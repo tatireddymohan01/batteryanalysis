@@ -2,8 +2,9 @@
 Quick start script to test the API locally.
 """
 
-import requests
 import json
+
+import requests
 
 
 def test_health():
@@ -17,7 +18,7 @@ def test_health():
 def test_prediction():
     """Test prediction endpoint."""
     print("Testing prediction endpoint...")
-    
+
     data = {
         "cycles": 500,
         "temperature": 25.0,
@@ -25,14 +26,11 @@ def test_prediction():
         "voltage_min": 3.0,
         "voltage_max": 4.2,
         "usage_hours": 1200,
-        "humidity": 50.0
+        "humidity": 50.0,
     }
-    
-    response = requests.post(
-        "http://localhost:8000/predict",
-        json=data
-    )
-    
+
+    response = requests.post("http://localhost:8000/predict", json=data)
+
     print(f"Status: {response.status_code}")
     print(f"Response: {json.dumps(response.json(), indent=2)}\n")
 
@@ -40,7 +38,7 @@ def test_prediction():
 def test_batch_prediction():
     """Test batch prediction endpoint."""
     print("Testing batch prediction endpoint...")
-    
+
     data = {
         "predictions": [
             {
@@ -50,7 +48,7 @@ def test_batch_prediction():
                 "voltage_min": 3.0,
                 "voltage_max": 4.2,
                 "usage_hours": 1200,
-                "humidity": 50.0
+                "humidity": 50.0,
             },
             {
                 "cycles": 1000,
@@ -59,16 +57,13 @@ def test_batch_prediction():
                 "voltage_min": 3.0,
                 "voltage_max": 4.2,
                 "usage_hours": 2500,
-                "humidity": 60.0
-            }
+                "humidity": 60.0,
+            },
         ]
     }
-    
-    response = requests.post(
-        "http://localhost:8000/predict/batch",
-        json=data
-    )
-    
+
+    response = requests.post("http://localhost:8000/predict/batch", json=data)
+
     print(f"Status: {response.status_code}")
     print(f"Response: {json.dumps(response.json(), indent=2)}\n")
 
@@ -82,22 +77,22 @@ def test_model_info():
 
 
 if __name__ == "__main__":
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("API TESTING SUITE")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
     print("Make sure the API is running at http://localhost:8000")
     print("Start with: uvicorn src.api.app:app --reload\n")
-    
+
     try:
         test_health()
         test_model_info()
         test_prediction()
         test_batch_prediction()
-        
-        print("="*60)
+
+        print("=" * 60)
         print("ALL TESTS COMPLETED")
-        print("="*60 + "\n")
-        
+        print("=" * 60 + "\n")
+
     except requests.exceptions.ConnectionError:
         print("❌ Error: Could not connect to API")
         print("Please start the API server first:")
