@@ -15,8 +15,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY src/ ./src/
 COPY config/ ./config/
-COPY models/ ./models/
-COPY data/ ./data/
+
+# Create necessary directories for runtime
+RUN mkdir -p ./models/saved ./models/experiments \
+    ./data/raw ./data/processed ./data/external \
+    ./logs
+
+# Note: Models should be mounted as volumes or copied separately after training
 
 # Expose port
 EXPOSE 8000
