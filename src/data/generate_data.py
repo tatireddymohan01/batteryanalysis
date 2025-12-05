@@ -279,7 +279,7 @@ class BatteryDegradationGenerator:
         # Save splits
         processed_dir = Path("./data/processed")
         processed_dir.mkdir(parents=True, exist_ok=True)
-        
+
         train_df.to_csv(processed_dir / "train.csv", index=False)
         val_df.to_csv(processed_dir / "val.csv", index=False)
         test_df.to_csv(processed_dir / "test.csv", index=False)
