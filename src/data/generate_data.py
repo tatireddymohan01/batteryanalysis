@@ -277,11 +277,14 @@ class BatteryDegradationGenerator:
         logger.info(f"Test set size: {len(test_df)}")
 
         # Save splits
-        train_df.to_csv("./data/processed/train.csv", index=False)
-        val_df.to_csv("./data/processed/val.csv", index=False)
-        test_df.to_csv("./data/processed/test.csv", index=False)
+        processed_dir = Path("./data/processed")
+        processed_dir.mkdir(parents=True, exist_ok=True)
+        
+        train_df.to_csv(processed_dir / "train.csv", index=False)
+        val_df.to_csv(processed_dir / "val.csv", index=False)
+        test_df.to_csv(processed_dir / "test.csv", index=False)
 
-        logger.info("Train/val/test splits saved to ./data/processed/")
+        logger.info(f"Train/val/test splits saved to {processed_dir}")
 
         return train_df, val_df, test_df
 
